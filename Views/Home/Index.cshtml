@@ -1,0 +1,74 @@
+﻿@model IEnumerable<join.Models.product>
+
+<h1 class="text-3xl font-bold">Product List</h1>
+
+<p>
+    <a class="text-blue-500 hover:underline" asp-action="Create">Create New</a>
+</p>
+
+<table class="table-auto w-full">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.name)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.phone)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.address)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.file_name)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.file_content_type)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.FileContent)
+            </th>
+
+            <th class="px-4 py-2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelItem => product.name)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelItem => product.phone)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelItem => product.address)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelItem => product.file_name)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelItem => product.file_content_type)
+                </td>
+                <td>
+                    @if (product.FileContent != null && product.FileContent.Length > 0)
+                    {
+                        @if (product.file_content_type == "application/pdf")
+                        {
+                            <embed src="data:application/pdf;base64,@Convert.ToBase64String(product.FileContent)" width="100" height="100" type="application/pdf" />
+                        }
+                        else if (product.file_content_type.StartsWith("image/"))
+                        {
+                            <img src="data:@product.file_content_type;base64,@Convert.ToBase64String(product.FileContent)" width="100" height="100" />
+                        }
+                    }
+                </td>
+                <td class="border px-4 py-2">
+                    <a class="text-blue-600 hover:underline" asp-action="Details" asp-route-id="@product.id">Details</a> |
+                    <a class="text-green-600 hover:underline" asp-action="Edit" asp-route-id="@product.id">Edit</a> |
+                    <a class="text-red-600 hover:underline" asp-action="Delete" asp-route-id="@product.id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
