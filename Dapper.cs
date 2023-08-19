@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Dapper;
 using join.Models;
 using MySql.Data.MySqlClient;
@@ -89,18 +89,30 @@ namespace MyDapperMvcApp.Data
             {
                 connection.Open();
                 //string query = "INSERT INTO person (name, phone,address,file_name,file_content_type,FileContent,countryId,stateId,cityId) VALUES (@name, @phone,@address,@file_name,@file_content_type,@FileContent,@countryId,@stateId,@cityId)";
-                var parameters = new
-                {
-                    product_name = product.name,
-                    product_phone = product.phone,
-                    product_address = product.address,
-                    file_name = productFile?.FileName,
-                    file_content_type = productFile?.ContentType,
-                    file_content = product.FileContent,
-                    country_id = product.CountryId,
-                    state_id = product.StateId,
-                    city_id = product.cityId
-                };
+                //var parameters = new
+                //{
+                //    product_name = product.name,
+                //    product_phone = product.phone,
+                //    product_address = product.address,
+                //    file_name = productFile?.FileName,
+                //    file_content_type = productFile?.ContentType,
+                //    file_content = product.FileContent,
+                //    country_id = product.CountryId,
+                //    state_id = product.StateId,
+                //    city_id = product.cityId
+                //};
+
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@product_name", product.name);
+                parameters.Add("@product_phone", product.phone);
+                parameters.Add("@product_address", product.address);
+                parameters.Add("@file_name", product.file_name);
+                parameters.Add("@file_content_type", product.file_content_type);
+                
+                parameters.Add("@countryId", product.CountryId);
+                parameters.Add("@stateId", product.StateId);
+                parameters.Add("@cityId", product.cityId);
+
 
                 if (productFile != null && productFile.Length > 0)
                 {
@@ -116,6 +128,7 @@ namespace MyDapperMvcApp.Data
                         {
                             productFile.CopyTo(memoryStream);
                             product.FileContent = memoryStream.ToArray();
+                            parameters.Add("@fileContent", product.FileContent);
                         }
 
                     }
@@ -125,7 +138,7 @@ namespace MyDapperMvcApp.Data
                     }
                 }
                 //connection.Execute(query, product);
-                connection.Execute("InsertProduct", parameters, commandType: CommandType.StoredProcedure);
+                connection.Execute("InsertProductSP", parameters, commandType: CommandType.StoredProcedure);
             }
         }
 
