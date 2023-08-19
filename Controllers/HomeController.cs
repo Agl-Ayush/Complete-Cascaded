@@ -1,4 +1,4 @@
-﻿using join.Models;
+using join.Models;
 using Microsoft.AspNetCore.Mvc;
 using MyDapperMvcApp.Data;
 
@@ -37,16 +37,6 @@ public class HomeController : Controller
         _dapperContext = dapperContext;
     }
 
-
-
-    //[HttpPost]
-    //public JsonResult AjaxMethod()
-    //{
-    //    List<Customer> customers = (from customer in entities.Customers
-    //                                select customer).ToList();
-    //    return Json(customers);
-    //}
-
     public IActionResult Index()
     {
         var products = _dapperContext.GetAllProducts();
@@ -80,7 +70,7 @@ public class HomeController : Controller
     public IActionResult Create(product product, IFormFile productFile)
     {
         if (ModelState.IsValid)
-        {   
+        {  
 
             product.file_name = productFile?.FileName;
             product.file_content_type = productFile?.ContentType;
@@ -135,6 +125,8 @@ public class HomeController : Controller
             product.phone = updatedProduct.phone;
             product.address = updatedProduct.address;
             product.country = updatedProduct.country;
+            product.state = updatedProduct.state;
+            product.city = updatedProduct.city;
             product.file_name = updatedProduct.file_name;
             product.file_content_type = updatedProduct.file_content_type;
 
