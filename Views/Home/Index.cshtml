@@ -1,0 +1,147 @@
+﻿@model IEnumerable<join.Models.product>
+
+<h1 class="text-3xl font-bold">Employee List</h1>
+
+<p>
+    <a class="text-blue-500 hover:underline" class="btn btn-secondary" id="create" asp-action="Create">Create New</a>
+</p>
+
+
+<table class="table-auto w-full" id="employeeTable">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.name)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.phone)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.address)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.file_name)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.file_content_type)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.country)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.state)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.city)
+            </th>
+            <th class="px-4 py-2">
+                @Html.DisplayNameFor(model => model.FileContent)
+            </th>
+
+            <th class="px-4 py-2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.name)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.phone)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.address)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.file_name)
+                </td>
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.file_content_type)
+                </td>
+
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.country)
+                </td>
+
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.state)
+                </td>
+
+                <td class="border px-4 py-2">
+                    @Html.DisplayFor(modelitem => product.city)
+                </td>
+
+                <td>  
+                    @if (product.FileContent != null && product.FileContent.Length > 0)
+                    {
+                        @if (product.file_content_type == "application/pdf")
+                        {
+                                <embed src="data:application/pdf;base64,@Convert.ToBase64String(product.FileContent)" width="100" height="100" type="application/pdf" />
+                        }
+                        else if (product.file_content_type.StartsWith("image/"))
+                        {
+                                <img src="data:@product.file_content_type;base64,@Convert.ToBase64String(product.FileContent)" width="100" height="100" />
+                        }
+                    }
+                </td>
+                <td class="border px-4 py-2">
+                    <a class="text-blue-600 hover:underline" asp-action="details" asp-route-id="@product.id" onclick="showLoader()">Details</a> |
+                    <a class="text-green-600 hover:underline" asp-action="edit" asp-route-id="@product.id">Edit</a> |
+                    <a class="text-red-600 hover:underline" asp-action="delete" asp-route-id="@product.id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<!-- Include DataTables CSS and JS files -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+<!-- Script to just add datatable in normal table-->
+@*
+@section scripts{
+   <script>
+        $(document).ready(function () {
+            $('#employeeTable').DataTable({
+                lengthMenu: [[5, 10, -1], [5, 10, "All"]]
+            });
+        });
+    </script>
+
+}*@
+
+@section scripts{
+    <script>
+        function showLoader() {
+            document.getElementById("loader").style.display = "block";
+        }
+
+        function hideLoader() {
+            document.getElementById("loader").style.display = "none";
+        }
+
+        // Example usage:
+        $(function () {
+            showLoader(); // Show loader when the page loads
+
+            // Perform an action (e.g., AJAX request)
+            $.ajax({
+                // ...
+                success: function (data) {
+                    // Hide loader when the action is complete
+                    hideLoader();
+                },
+                error: function () {
+                    // Hide loader on error too
+                    hideLoader();
+                }
+            });
+        });
+    </script>
+}

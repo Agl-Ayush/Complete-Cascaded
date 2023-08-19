@@ -1,0 +1,117 @@
+﻿@{
+    ViewData["Title"] = "Data Table";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page to detail your site's privacy policy.</p>
+
+
+<public !DOCTYPE html data-bs-theme="dark" class="dark">
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Index</title>
+        <style type="text/css">
+            body {
+                font-family: Arial;
+                font-size: 10pt;
+            }
+        </style>
+    </head>
+    <body>
+        <table id="tblCustomers" cellpadding="0" cellspacing="0" border="1" class="cell-border display compact stripe row-border">
+            <thead>
+                <tr>
+                    <th>Full Name </th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>File Name</th>
+                    <th>File Content Type</th>
+                    <th>Profile Image</th>
+                    <th>Country Name</th>
+                    <th>State Name</th>
+                    <th>City Name</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+        <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript">
+            let prefers = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            let html = document.querySelector('html');
+
+            html.classList.add(prefers);
+            html.setAttribute('data-bs-theme', prefers);
+            $(function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetAllData",
+                    data: '{}',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: OnSuccess,
+                    failure: function (response) {
+                        //alert(response.d);
+                    },
+                    error: function (response) {
+                        //alert(response.d);
+                    }
+                });
+            });
+            function OnSuccess(response) {
+                $("#tblCustomers").DataTable(
+                    {
+                        
+                        bLengthChange: true,
+                        lengthMenu: [[5, 10, -1], [5, 10, "All"]],
+                        bFilter: true,
+                        bSort: true,
+                        bPaginate: true,
+                        data: response,
+                        columns: [{ 'data': 'name' },
+                        { 'data': 'phone' },
+                        { 'data': 'address' },
+                        { 'data': 'file_name' },
+                        { 'data': 'file_content_type' },
+                        {
+                          'data': 'fileContent',
+                          'render': function (data, type, row)
+                            {
+                                if (row.file_content_type === "application/pdf") 
+                                {
+                                   
+                                    return '<embed src="data:application/pdf;base64,' + data + '" width="100" height="100" type="application/pdf" />';
+                                }
+                                else if (row.file_content_type.startsWith("image/")) 
+                                {
+                                    console.log(data)
+                                    return '<img src="data:' + row.file_content_type + ';base64,' + data + '" width="60" height="60" style="border-radius: 100%;" />';
+                                }
+                                else
+                                {
+                                    return 'no valid file'; // If no valid image type, return empty string
+                                }
+                            }
+                        },
+                        { 'data': 'country' },
+                        { 'data': 'state' },
+                        { 'data': 'city' },
+                        {
+                            'data': null,
+                            'render': function (data, type, row) {
+                                return '<a class="btn btn-primary me-4" href="/Home/Edit/' + data.id + '">Edit</a>' +
+                                    '<a class="btn btn-danger" href="/Home/Delete/' + data.id + '">Delete</a>';
+
+                            }
+                        }
+                        ],
+                        order: [[7, "asc"]],
+                    });
+            };
+        </script>
+    </body>
+

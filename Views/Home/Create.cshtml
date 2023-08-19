@@ -1,0 +1,164 @@
+﻿@model join.Models.product
+
+<div id="custom-alert" class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hidden">
+    <p class="text-sm"></p>
+    <button class="text-white font-semibold ml-2 focus:outline-none">Close</button>
+</div>
+
+<h1 class="text-3xl font-bold ml-64">Create New Product</h1>
+
+<div class="flex flex-col justify-items-center content-center items-center">
+    <form asp-action="Create" class="w-full max-w-sm" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-red-500"></div>
+
+        <div class="mb-4">
+            <label asp-for="name" class="block font-bold mb-2"></label>
+            <input asp-for="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="name" class="text-red-500"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="phone" class="block font-bold mb-2"></label>
+            <input asp-for="phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="phone" class="text-red-500"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="address" class="block font-bold mb-2"></label>
+            <input asp-for="address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="address" class="text-red-500"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="CountryId" class="block font-bold mb-2">Country</label>
+            <select id="countryDropdown" asp-for="CountryId" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Select a country</option>
+
+            </select>
+            <span asp-validation-for="country" class="text-red-500"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="StateId" class="block font-bold mb-2">State</label>
+            <select id="stateDropdown" asp-for="StateId" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Select a state</option>
+
+            </select>
+            <span asp-validation-for="state" class="text-red-500"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="cityId" class="block font-bold mb-2">City</label>
+            <select id="cityDropdown" asp-for="cityId" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Select a city</option>
+
+            </select>
+            <span asp-validation-for="cityId" class="text-red-500"></span>
+        </div>
+
+
+        <div class="mb-4">
+            <label class="block font-bold mb-2">Upload File</label>
+            <input type="file" name="productFile" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        </div>
+
+        <div class="flex items-center justify-between">
+            <input type="submit" value="Create" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" />
+        </div>
+
+
+    </form>
+</div>
+
+@section scripts{
+    <script>
+        console.log("Script is running.");
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var fileInput = document.querySelector('input[type="file"]');
+            fileInput.addEventListener("change", function () {
+                var allowedExtensions = /(\.pdf|\.jpg|\.jpeg|\.png|\.gif)$/i;
+                var fileName = this.value;
+
+                if (!allowedExtensions.exec(fileName)) {
+                    this.value = '';
+                    Swal.fire({
+                        title: 'Invalid File Type',
+                        text: 'You can only choose pictures as your profile.',
+                        icon: 'error'
+                    });
+
+                    //alert('Invalid file type. Only PDF and image files are allowed.');
+                }
+            });
+
+            getCountry();
+            getstatebyCountryId();
+        });
+
+        var countryDropdown = document.getElementById('countryDropdown');
+        countryDropdown.addEventListener("change", function () {
+            var selectedCountry = this.value;
+
+            // Fetch API call to get states based on selected country
+            fetch('/Home/GetStates/' + selectedCountry)
+                .then(response => response.json())
+                .then(data => {
+                    var stateDropdown = document.getElementById('stateDropdown');
+                    stateDropdown.innerHTML = '<option value="">Select a state</option>';
+                    data.forEach(state => {
+                        var option = document.createElement('option');
+                        option.value = state.id;
+                        option.text = state.name;
+                        stateDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.log('Error fetching states.', error);
+                });
+        });
+
+        function getCountry() {
+            // Fetch API call for getting all countries
+            fetch('/Home/GetCountry')
+                .then(response => response.json())
+                .then(data => {
+                    var countryDropdown = document.getElementById('countryDropdown');
+                    countryDropdown.innerHTML = '<option value="">Select a country</option>';
+                    data.forEach(country => {
+                        var option = document.createElement('option');
+                        option.value = country.id;
+                        option.text = country.name;
+                        countryDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.log('Error fetching countries.', error);
+                });
+        }
+
+        function getstatebyCountryId() {
+            var stateDropdown = document.getElementById('stateDropdown');
+            stateDropdown.addEventListener("change", function () {
+                var selectedState = this.value;
+
+                // Fetch API call to get cities based on selected state
+                fetch('/Home/GetCities/' + selectedState)
+                    .then(response => response.json())
+                    .then(data => {
+                        var cityDropdown = document.getElementById('cityDropdown');
+                        cityDropdown.innerHTML = '<option value="">Select a city</option>';
+                        data.forEach(city => {
+                            var option = document.createElement('option');
+                            option.value = city.id;
+                            option.text = city.name;
+                            cityDropdown.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.log('Error fetching cities.', error);
+                    });
+            });
+        }
+    </script>
+}
